@@ -2,8 +2,9 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pac‑Man con Phaser - Versione Avanzata</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pac‑Man con Phaser - PWA</title>
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,12 +15,12 @@
     <p id="levelLabel">Level: 1</p>
   </div>
 
-  <!-- Contenitore per il gioco: Phaser monterà il canvas qui -->
+  <!-- Contenitore per il gioco -->
   <div id="gameContainer">
     <div id="phaser-game"></div>
   </div>
 
-  <!-- Contenitore per i controlli touch, posizionati sotto l'area di gioco -->
+  <!-- Controlli tattili (per smartphone) -->
   <div id="controlsContainer">
     <div class="btn-row" style="margin-bottom:5px;">
       <button id="btn-up" class="touch-btn">▲</button>
@@ -31,9 +32,19 @@
     </div>
   </div>
 
-  <!-- Inclusione di Phaser 3 da CDN -->
+  <!-- Phaser 3 da CDN -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  <!-- File principale di gioco -->
+  
+  <!-- Codice del gioco -->
   <script src="main.js"></script>
+
+  <!-- Service Worker: per abilitare la PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('Service Worker registrato con successo!'))
+        .catch(err => console.log('Service Worker registration failed:', err));
+    }
+  </script>
 </body>
 </html>
