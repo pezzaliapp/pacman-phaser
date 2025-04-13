@@ -1,5 +1,3 @@
-/* styles.css */
-
 /* Impostazioni globali */
 body {
   margin: 0;
@@ -9,7 +7,7 @@ body {
   color: #ffffff;
 }
 
-/* Pannello punteggio esterno */
+/* Pannello punteggio */
 #scorePanel {
   width: 90%;
   max-width: 800px;
@@ -36,8 +34,7 @@ body {
   position: relative;
 }
 
-/* Area in cui Phaser monta il canvas:
-   - Il canvas si adatta al contenitore, con bordo e angoli arrotondati */
+/* Area dove Phaser monta il canvas */
 #phaser-game {
   width: 100%;
   height: auto;
@@ -46,7 +43,7 @@ body {
   border-radius: 5px;
 }
 
-/* Contenitore dei controlli tattili */
+/* Controlli tattili */
 #controlsContainer {
   width: 90%;
   max-width: 800px;
@@ -57,14 +54,12 @@ body {
   gap: 8px;
 }
 
-/* Layout a righe per i pulsanti */
 .btn-row {
   display: flex;
   justify-content: center;
   gap: 10px;
 }
 
-/* Stile dei pulsanti tattili */
 .touch-btn {
   width: 60px;
   height: 60px;
@@ -76,7 +71,7 @@ body {
   opacity: 0.8;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease;
-  -webkit-user-select: none; /* Disabilita la selezione del testo */
+  -webkit-user-select: none; /* Evita selezione testo */
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
@@ -87,7 +82,6 @@ body {
   transform: scale(0.95);
 }
 
-/* Responsività per dispositivi con larghezza inferiore a 600px */
 @media (max-width: 600px) {
   #scorePanel p {
     font-size: 14px;
