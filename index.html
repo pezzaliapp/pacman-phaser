@@ -3,33 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pac-Man con Phaser - Responsive</title>
-  <link rel="manifest" href="manifest.json">
+  <title>Pac-Man con Phaser - Labirinto Proporzionato</title>
   <style>
-    /* Stile base per il body */
+    /* Stile di base per lo sfondo */
     body {
       margin: 0;
       background-color: #000;
     }
-    /* Contenitore del gioco responsivo */
+    /* Contenitore responsivo: si adatta alla larghezza schermo, max 800 px */
     #gameContainer {
-      margin: 20px auto;
       width: 90vw;
       max-width: 800px;
+      margin: 20px auto; /* Centro orizzontalmente */
       background-color: #000;
       position: relative;
     }
-    /* Il div in cui Phaser monterà il canvas */
+    /* Phaser monterà il canvas dentro #phaser-game */
     #phaser-game {
       width: 100%;
       height: auto;
     }
-    /* Contenitore per i controlli touch, posizionato sotto il gioco */
+    /* Contenitore per i pulsanti tattili (su mobile), sotto il gioco */
     #controlsContainer {
       text-align: center;
       margin-top: 10px;
     }
-    /* Stile per i pulsanti tattili */
     .touch-btn {
       width: 50px;
       height: 50px;
@@ -44,19 +42,18 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
-  <!-- Contenitore del gioco -->
+  <!-- Contenitore del gioco (canvas Phaser + HUD) -->
   <div id="gameContainer">
     <div id="phaser-game"></div>
   </div>
-  
-  <!-- Controlli touch, posizionati sotto il gioco -->
+
+  <!-- Pulsanti tattili (per chi gioca su smartphone) -->
   <div id="controlsContainer">
-    <div class="btn-row">
+    <div class="btn-row" style="margin-bottom:5px;">
       <button id="btn-up" class="touch-btn">▲</button>
     </div>
     <div class="btn-row">
@@ -66,17 +63,9 @@
     </div>
   </div>
 
-  <!-- Inclusione di Phaser e del file principale JS -->
+  <!-- Inclusione di Phaser 3 -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <!-- File principale di gioco -->
   <script src="main.js"></script>
-  
-  <!-- Registrazione del service worker per la PWA (opzionale) -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('Service worker registrato:', reg))
-        .catch(err => console.error('Service worker non registrato:', err));
-    }
-  </script>
 </body>
 </html>
