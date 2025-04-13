@@ -1,4 +1,4 @@
-const TILE_SIZE = 16;
+const TILE_SIZE = 16; // Dimensione di ogni tile in pixel
 
 //
 // SCENA DI START: mostra il titolo e un pulsante “START” per avviare il gioco
@@ -12,11 +12,9 @@ class StartScene extends Phaser.Scene {
     const centerX = this.cameras.main.width / 2;
     const centerY = this.cameras.main.height / 2;
     
-    // Mostra il titolo
     this.add.text(centerX, centerY - 60, 'PAC‑MAN', { fontSize: '48px', fill: '#fff' })
       .setOrigin(0.5);
     
-    // Crea il pulsante START
     const startButton = this.add.text(centerX, centerY + 20, 'START', { fontSize: '32px', fill: '#0f0' })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
@@ -28,7 +26,7 @@ class StartScene extends Phaser.Scene {
 }
 
 //
-// SCENA DI GIOCO: logica principale (labirinto, Pac‑Man, fantasmi, controlli e punteggio)
+// SCENA DI GIOCO: qui avviene la logica principale del gioco
 //
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -36,14 +34,14 @@ class GameScene extends Phaser.Scene {
   }
   
   preload() {
-    // Texture per il muro (rettangolo blu)
+    // Texture per il muro: un rettangolo blu
     const wallGfx = this.make.graphics({ add: false });
     wallGfx.fillStyle(0x0000ff, 1);
     wallGfx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
     wallGfx.generateTexture('wall', TILE_SIZE, TILE_SIZE);
     wallGfx.destroy();
 
-    // Texture per Pac‑Man: disegnato come un arco giallo
+    // Texture per Pac‑Man: un arco giallo
     const pacmanGfx = this.make.graphics({ add: false });
     pacmanGfx.fillStyle(0xffff00, 1);
     pacmanGfx.slice(TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/2, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(330), false);
@@ -51,14 +49,14 @@ class GameScene extends Phaser.Scene {
     pacmanGfx.generateTexture('pacman', TILE_SIZE, TILE_SIZE);
     pacmanGfx.destroy();
 
-    // Texture per il fantasma: cerchio rosso
+    // Texture per il fantasma: un cerchio rosso
     const ghostGfx = this.make.graphics({ add: false });
     ghostGfx.fillStyle(0xff0000, 1);
     ghostGfx.fillCircle(TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/2);
     ghostGfx.generateTexture('ghost', TILE_SIZE, TILE_SIZE);
     ghostGfx.destroy();
 
-    // Texture per il pellet: piccolo cerchio bianco (8x8)
+    // Texture per il pellet: un piccolo cerchio bianco (8x8)
     const pelletGfx = this.make.graphics({ add: false });
     pelletGfx.fillStyle(0xffffff, 1);
     pelletGfx.fillCircle(4, 4, 4);
@@ -67,8 +65,11 @@ class GameScene extends Phaser.Scene {
   }
   
   create() {
-    // Definizione del labirinto (matrice 21x17)
-    // 0 = muro, 1 = pellet, 2 = spazio vuoto
+    // Inizializza il comando desiderato e quello corrente per Pac‑Man
+    this.desiredDir = null;
+    this.currentDir = { dx: 0, dy: 0 };
+
+    // Definizione del labirinto (21×17): 0 = muro, 1 = pellet, 2 = spazio vuoto
     this.mazeData = [
       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
@@ -105,7 +106,7 @@ class GameScene extends Phaser.Scene {
       }
     }
     
-    // Creazione di Pac‑Man (posizione iniziale in [1,1])
+    // Creazione di Pac‑Man nella cella [1,1]
     this.pacman = this.physics.add.sprite(
       TILE_SIZE * 1 + TILE_SIZE / 2,
       TILE_SIZE * 1 + TILE_SIZE / 2,
@@ -113,8 +114,12 @@ class GameScene extends Phaser.Scene {
     );
     this.pacman.speed = 80;
     this.pacman.setCollideWorldBounds(true);
-    
-    // Creazione di un gruppo di fantasmi
+
+    // Imposta direzione iniziale (ad esempio, nessuna)
+    this.currentDir = { dx: 0, dy: 0 };
+    this.desiredDir = { dx: 0, dy: 0 };
+
+    // Creazione di un gruppo di fantasmi e definizione delle loro posizioni iniziali
     this.ghosts = this.physics.add.group();
     const ghostPositions = [
       { x: TILE_SIZE * 10 + TILE_SIZE / 2, y: TILE_SIZE * 8 + TILE_SIZE / 2 },
@@ -128,88 +133,102 @@ class GameScene extends Phaser.Scene {
       this.ghosts.add(ghost);
     });
     
-    // Collisioni: Pac‑Man e fantasmi con i muri
+    // Abilita collisioni di Pac‑Man e fantasmi con i muri
     this.physics.add.collider(this.pacman, this.walls);
     this.physics.add.collider(this.ghosts, this.walls);
     
-    // Overlap per la raccolta dei pellet e per la collisione con i fantasmi
+    // Overlap per la raccolta dei pellet e per la collisione tra Pac‑Man e i fantasmi
     this.physics.add.overlap(this.pacman, this.pellets, this.collectPellet, null, this);
     this.physics.add.overlap(this.pacman, this.ghosts, this.hitGhost, null, this);
     
     // Imposta i controlli da tastiera
     this.cursors = this.input.keyboard.createCursorKeys();
     
-    // Variabili di gioco
+    // Variabili di gioco: punteggio, vite e livello
     this.score = 0;
     this.lives = 3;
     this.level = 1;
     this.updateScorePanel();
     
-    // Imposta i controlli tattili (senza azzerare la velocità al rilascio per mantenere il movimento)
+    // Configura i controlli tattili (aggiorna la direzione desiderata)
     this.setupTouchControls();
   }
   
   update() {
-    // Gestione dei controlli da tastiera per Pac‑Man
-    let vx = 0, vy = 0;
+    // Aggiorna la direzione desiderata se ci sono input da tastiera
     if (this.cursors.left.isDown) {
-      vx = -this.pacman.speed;
+      this.desiredDir = { dx: -1, dy: 0 };
     } else if (this.cursors.right.isDown) {
-      vx = this.pacman.speed;
+      this.desiredDir = { dx: 1, dy: 0 };
     }
     if (this.cursors.up.isDown) {
-      vy = -this.pacman.speed;
+      this.desiredDir = { dx: 0, dy: -1 };
     } else if (this.cursors.down.isDown) {
-      vy = this.pacman.speed;
-    }
-    if (vx !== 0 || vy !== 0) {
-      this.setPacmanVelocity(vx, vy);
+      this.desiredDir = { dx: 0, dy: 1 };
     }
     
-    // Aggiorna il movimento di ciascun fantasma
+    // Prova a cambiare direzione se Pac‑Man è quasi al centro della cella
+    const col = Math.floor(this.pacman.x / TILE_SIZE);
+    const row = Math.floor(this.pacman.y / TILE_SIZE);
+    const centerX = col * TILE_SIZE + TILE_SIZE / 2;
+    const centerY = row * TILE_SIZE + TILE_SIZE / 2;
+    const threshold = 3; // soglia in pixel
+    if (Math.abs(this.pacman.x - centerX) < threshold &&
+        Math.abs(this.pacman.y - centerY) < threshold &&
+        this.desiredDir) {
+      // Se il tile nella direzione desiderata è libero, cambia direzione
+      if (this.isFree(col + this.desiredDir.dx, row + this.desiredDir.dy)) {
+        this.pacman.setVelocity(this.desiredDir.dx * this.pacman.speed, this.desiredDir.dy * this.pacman.speed);
+        // Aggiorna l'angolo in base alla nuova direzione
+        if (this.desiredDir.dx > 0) { this.pacman.setAngle(0); }
+        else if (this.desiredDir.dx < 0) { this.pacman.setAngle(180); }
+        else if (this.desiredDir.dy < 0) { this.pacman.setAngle(270); }
+        else if (this.desiredDir.dy > 0) { this.pacman.setAngle(90); }
+        // Aggiorna la direzione corrente
+        this.currentDir = { dx: this.desiredDir.dx, dy: this.desiredDir.dy };
+      }
+    }
+    
+    // Aggiorna il movimento dei fantasmi
     this.ghosts.getChildren().forEach(ghost => {
       this.updateGhost(ghost);
     });
   }
   
-  // Imposta la velocità di Pac‑Man e ruota la sprite in base alla direzione
+  // Imposta la velocità corrente di Pac‑Man (usata anche per aggiornare l'angolo)
   setPacmanVelocity(vx, vy) {
     this.pacman.setVelocity(vx, vy);
-    if (vx > 0) {
-      this.pacman.setAngle(0);
-    } else if (vx < 0) {
-      this.pacman.setAngle(180);
-    } else if (vy < 0) {
-      this.pacman.setAngle(270);
-    } else if (vy > 0) {
-      this.pacman.setAngle(90);
-    }
+    if (vx > 0) { this.pacman.setAngle(0); }
+    else if (vx < 0) { this.pacman.setAngle(180); }
+    else if (vy < 0) { this.pacman.setAngle(270); }
+    else if (vy > 0) { this.pacman.setAngle(90); }
+    // Aggiorna la direzione corrente se richiesto
+    this.currentDir = { dx: vx ? Math.sign(vx) : 0, dy: vy ? Math.sign(vy) : 0 };
   }
   
-  // Configura i controlli tattili: utilizza "touchstart" per impostare la direzione
+  // Configura i controlli tattili: imposta la "direzione desiderata" sui pulsanti
   setupTouchControls() {
     const btnUp = document.getElementById('btn-up');
     const btnDown = document.getElementById('btn-down');
     const btnLeft = document.getElementById('btn-left');
     const btnRight = document.getElementById('btn-right');
     
-    const setDirection = (vx, vy) => {
-      this.setPacmanVelocity(vx, vy);
+    const setDirection = (dx, dy) => {
+      this.desiredDir = { dx, dy };
     };
     
-    // Assegna gli eventi per click e touchstart (non fermare il movimento su touchend)
-    [ [btnUp, 0, -this.pacman.speed],
-      [btnDown, 0, this.pacman.speed],
-      [btnLeft, -this.pacman.speed, 0],
-      [btnRight, this.pacman.speed, 0]
-    ].forEach(([btn, vx, vy]) => {
-      btn.addEventListener('click', () => setDirection(vx, vy));
+    [ [btnUp, 0, -1],
+      [btnDown, 0, 1],
+      [btnLeft, -1, 0],
+      [btnRight, 1, 0]
+    ].forEach(([btn, dx, dy]) => {
+      btn.addEventListener('click', () => setDirection(dx, dy));
       btn.addEventListener('touchstart', ev => {
         ev.preventDefault();
-        setDirection(vx, vy);
+        setDirection(dx, dy);
       });
-      // Non azzeriamo la velocità su touchend per mantenere un movimento continuo
-      btn.addEventListener('mouseup', () => this.setPacmanVelocity(0, 0));
+      // Non azzeriamo la velocità al rilascio per mantenere il movimento continuo
+      btn.addEventListener('mouseup', () => {}); 
     });
   }
   
@@ -218,7 +237,6 @@ class GameScene extends Phaser.Scene {
     pellet.destroy();
     this.score += 10;
     this.updateScorePanel();
-    // Se non ci sono più pellet, aumenta il livello e riavvia la scena
     if (this.pellets.countActive() === 0) {
       this.level++;
       this.updateScorePanel();
@@ -261,14 +279,14 @@ class GameScene extends Phaser.Scene {
     });
   }
   
-  // Aggiorna il pannello punteggio esterno
+  // Aggiorna il pannello punteggio (esterno al canvas)
   updateScorePanel() {
     document.getElementById('scoreLabel').textContent = `Score: ${this.score}`;
     document.getElementById('livesLabel').textContent = `Lives: ${this.lives}`;
     document.getElementById('levelLabel').textContent = `Level: ${this.level}`;
   }
   
-  // Aggiorna il movimento del fantasma: quando è vicino al centro della cella (soglia 2px), cambia direzione senza fermarsi
+  // Movimento dei fantasmi: se il fantasma è vicino al centro della cella (soglia 2px) cambia direzione immediatamente
   updateGhost(ghost) {
     const tileX = Math.floor(ghost.x / TILE_SIZE);
     const tileY = Math.floor(ghost.y / TILE_SIZE);
@@ -285,7 +303,7 @@ class GameScene extends Phaser.Scene {
     }
   }
   
-  // Restituisce le direzioni libere (non bloccate) intorno a una cella data
+  // Restituisce le direzioni disponibili (libere dai muri) intorno alla cella (tileX, tileY)
   getAvailableDirections(tileX, tileY) {
     const dirs = [];
     if (this.isFree(tileX - 1, tileY)) dirs.push({ dx: -1, dy: 0 });
@@ -295,7 +313,7 @@ class GameScene extends Phaser.Scene {
     return dirs;
   }
   
-  // Restituisce true se la cella (tileX, tileY) non è un muro (0)
+  // Verifica se la cella (tileX, tileY) non è un muro (0)
   isFree(tileX, tileY) {
     if (tileX < 0 || tileX >= this.mazeData[0].length || tileY < 0 || tileY >= this.mazeData.length)
       return false;
@@ -309,8 +327,8 @@ class GameScene extends Phaser.Scene {
 const config = {
   type: Phaser.AUTO,
   parent: 'phaser-game',
-  width: 21 * TILE_SIZE,    // 21 colonne
-  height: 17 * TILE_SIZE,   // 17 righe
+  width: 21 * TILE_SIZE,
+  height: 17 * TILE_SIZE,
   backgroundColor: "#000000",
   scale: {
     mode: Phaser.Scale.FIT,
