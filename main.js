@@ -1,7 +1,7 @@
 const TILE_SIZE = 16; // Dimensione di ogni tile in pixel
 
 //
-// SCENA DI START: mostra il titolo e un pulsante “START” per avviare il gioco
+// SCENA DI START: mostra il titolo e un pulsante “START”
 //
 class StartScene extends Phaser.Scene {
   constructor() {
@@ -26,7 +26,7 @@ class StartScene extends Phaser.Scene {
 }
 
 //
-// SCENA DI GIOCO: qui avviene la logica principale del gioco
+// SCENA DI GIOCO
 //
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -44,7 +44,13 @@ class GameScene extends Phaser.Scene {
     // Texture per Pac‑Man: un arco giallo
     const pacmanGfx = this.make.graphics({ add: false });
     pacmanGfx.fillStyle(0xffff00, 1);
-    pacmanGfx.slice(TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/2, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(330), false);
+    pacmanGfx.slice(
+      TILE_SIZE/2, TILE_SIZE/2,
+      TILE_SIZE/2,
+      Phaser.Math.DegToRad(30),
+      Phaser.Math.DegToRad(330),
+      false
+    );
     pacmanGfx.fillPath();
     pacmanGfx.generateTexture('pacman', TILE_SIZE, TILE_SIZE);
     pacmanGfx.destroy();
@@ -65,32 +71,32 @@ class GameScene extends Phaser.Scene {
   }
   
   create() {
-    // Inizializza il comando desiderato e quello corrente per Pac‑Man
+    // Inizializza le direzioni
     this.desiredDir = null;
     this.currentDir = { dx: 0, dy: 0 };
 
-    // Definizione del labirinto (21×17): 0 = muro, 1 = pellet, 2 = spazio vuoto
+    // Mappa più elaborata (21×17): 0 = muro, 1 = pellet, 2 = spazio vuoto
     this.mazeData = [
       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-      [0,1,0,0,0,0,1,0,0,1,1,0,0,0,1,0,0,0,0,1,0],
+      [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
       [0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0],
       [0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1,0],
-      [0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0],
-      [0,1,0,1,0,1,2,2,2,1,1,0,0,0,0,1,0,1,0,1,0],
-      [0,1,0,1,0,1,2,0,2,1,1,1,1,1,0,1,0,1,0,1,0],
-      [0,1,0,1,0,1,2,0,2,0,0,0,0,1,0,1,0,1,0,1,0],
-      [0,1,0,1,0,1,2,2,2,1,1,1,0,1,0,1,0,1,0,1,0],
-      [0,1,0,1,0,1,1,1,1,1,0,0,0,1,0,1,0,1,0,1,0],
-      [0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0],
+      [0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0],
+      [0,1,0,1,0,1,2,2,2,1,1,2,2,2,1,1,0,1,0,1,0],
+      [0,1,0,1,0,1,2,0,2,1,1,0,0,2,1,1,0,1,0,1,0],
+      [0,1,0,1,0,1,2,2,2,1,1,2,2,2,1,1,0,1,0,1,0],
+      [0,1,1,1,0,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,0],
+      [0,1,0,1,0,0,0,0,0,0,0,2,2,0,0,0,0,1,0,1,0],
+      [0,1,0,1,0,1,1,1,1,1,1,2,2,1,1,1,0,1,0,1,0],
+      [0,1,0,1,0,1,2,2,2,2,2,2,2,2,2,1,0,1,0,1,0],
+      [0,1,0,1,0,1,2,0,0,0,0,0,0,0,2,1,0,1,0,1,0],
+      [0,1,0,1,0,1,2,2,2,2,2,2,2,2,2,1,0,1,0,1,0],
       [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-      [0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0],
-      [0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0],
-      [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
-    
-    // Creazione dei gruppi statici per i muri e i pellet
+
+    // Creazione gruppi muri e pellet
     this.walls = this.physics.add.staticGroup();
     this.pellets = this.physics.add.staticGroup();
     
@@ -106,7 +112,7 @@ class GameScene extends Phaser.Scene {
       }
     }
     
-    // Creazione di Pac‑Man nella cella [1,1]
+    // Creazione di Pac‑Man (posizione iniziale [1,1])
     this.pacman = this.physics.add.sprite(
       TILE_SIZE * 1 + TILE_SIZE / 2,
       TILE_SIZE * 1 + TILE_SIZE / 2,
@@ -115,11 +121,11 @@ class GameScene extends Phaser.Scene {
     this.pacman.speed = 80;
     this.pacman.setCollideWorldBounds(true);
 
-    // Imposta direzione iniziale (ad esempio, nessuna)
+    // Direzioni iniziali di Pac-Man
     this.currentDir = { dx: 0, dy: 0 };
     this.desiredDir = { dx: 0, dy: 0 };
 
-    // Creazione di un gruppo di fantasmi e definizione delle loro posizioni iniziali
+    // Creazione fantasmi
     this.ghosts = this.physics.add.group();
     const ghostPositions = [
       { x: TILE_SIZE * 10 + TILE_SIZE / 2, y: TILE_SIZE * 8 + TILE_SIZE / 2 },
@@ -127,86 +133,88 @@ class GameScene extends Phaser.Scene {
       { x: TILE_SIZE * 12 + TILE_SIZE / 2, y: TILE_SIZE * 8 + TILE_SIZE / 2 }
     ];
     ghostPositions.forEach(pos => {
-      let ghost = this.physics.add.sprite(pos.x, pos.y, 'ghost');
+      const ghost = this.physics.add.sprite(pos.x, pos.y, 'ghost');
       ghost.speed = 60;
       ghost.setCollideWorldBounds(true);
       this.ghosts.add(ghost);
     });
-    
-    // Abilita collisioni di Pac‑Man e fantasmi con i muri
+
+    // Collisioni e overlaps
     this.physics.add.collider(this.pacman, this.walls);
     this.physics.add.collider(this.ghosts, this.walls);
-    
-    // Overlap per la raccolta dei pellet e per la collisione tra Pac‑Man e i fantasmi
     this.physics.add.overlap(this.pacman, this.pellets, this.collectPellet, null, this);
     this.physics.add.overlap(this.pacman, this.ghosts, this.hitGhost, null, this);
-    
-    // Imposta i controlli da tastiera
+
+    // Controlli da tastiera
     this.cursors = this.input.keyboard.createCursorKeys();
-    
-    // Variabili di gioco: punteggio, vite e livello
+
+    // Variabili di gioco
     this.score = 0;
     this.lives = 3;
     this.level = 1;
     this.updateScorePanel();
-    
-    // Configura i controlli tattili (aggiorna la direzione desiderata)
+
+    // Controlli tattili
     this.setupTouchControls();
+
+    // Avvio iniziale del movimento dei fantasmi
+    this.ghosts.getChildren().forEach(ghost => {
+      let tileX = Math.floor(ghost.x / TILE_SIZE);
+      let tileY = Math.floor(ghost.y / TILE_SIZE);
+      let dirs = this.getAvailableDirections(tileX, tileY);
+      if (dirs.length > 0) {
+        const chosen = Phaser.Utils.Array.GetRandom(dirs);
+        ghost.setVelocity(chosen.dx * ghost.speed, chosen.dy * ghost.speed);
+      }
+    });
   }
   
   update() {
-    // Aggiorna la direzione desiderata se ci sono input da tastiera
+    // Legge la direzione da tastiera (solo una alla volta)
     if (this.cursors.left.isDown) {
       this.desiredDir = { dx: -1, dy: 0 };
     } else if (this.cursors.right.isDown) {
       this.desiredDir = { dx: 1, dy: 0 };
-    }
-    if (this.cursors.up.isDown) {
+    } else if (this.cursors.up.isDown) {
       this.desiredDir = { dx: 0, dy: -1 };
     } else if (this.cursors.down.isDown) {
       this.desiredDir = { dx: 0, dy: 1 };
     }
-    
-    // Prova a cambiare direzione se Pac‑Man è quasi al centro della cella
+
+    // Tenta il cambio direzione al centro della cella
     const col = Math.floor(this.pacman.x / TILE_SIZE);
     const row = Math.floor(this.pacman.y / TILE_SIZE);
     const centerX = col * TILE_SIZE + TILE_SIZE / 2;
     const centerY = row * TILE_SIZE + TILE_SIZE / 2;
-    const threshold = 3; // soglia in pixel
-    if (Math.abs(this.pacman.x - centerX) < threshold &&
-        Math.abs(this.pacman.y - centerY) < threshold &&
-        this.desiredDir) {
+    const threshold = 4; // soglia in pixel leggermente più ampia
+
+    if (
+      Math.abs(this.pacman.x - centerX) < threshold &&
+      Math.abs(this.pacman.y - centerY) < threshold
+    ) {
       // Se il tile nella direzione desiderata è libero, cambia direzione
       if (this.isFree(col + this.desiredDir.dx, row + this.desiredDir.dy)) {
-        this.pacman.setVelocity(this.desiredDir.dx * this.pacman.speed, this.desiredDir.dy * this.pacman.speed);
-        // Aggiorna l'angolo in base alla nuova direzione
+        this.pacman.setVelocity(
+          this.desiredDir.dx * this.pacman.speed,
+          this.desiredDir.dy * this.pacman.speed
+        );
+        // Angolo sprite
         if (this.desiredDir.dx > 0) { this.pacman.setAngle(0); }
         else if (this.desiredDir.dx < 0) { this.pacman.setAngle(180); }
         else if (this.desiredDir.dy < 0) { this.pacman.setAngle(270); }
         else if (this.desiredDir.dy > 0) { this.pacman.setAngle(90); }
-        // Aggiorna la direzione corrente
+
         this.currentDir = { dx: this.desiredDir.dx, dy: this.desiredDir.dy };
       }
     }
     
-    // Aggiorna il movimento dei fantasmi
+    // Aggiorna movimento fantasmi
     this.ghosts.getChildren().forEach(ghost => {
       this.updateGhost(ghost);
     });
   }
   
-  // Imposta la velocità corrente di Pac‑Man (usata anche per aggiornare l'angolo)
-  setPacmanVelocity(vx, vy) {
-    this.pacman.setVelocity(vx, vy);
-    if (vx > 0) { this.pacman.setAngle(0); }
-    else if (vx < 0) { this.pacman.setAngle(180); }
-    else if (vy < 0) { this.pacman.setAngle(270); }
-    else if (vy > 0) { this.pacman.setAngle(90); }
-    // Aggiorna la direzione corrente se richiesto
-    this.currentDir = { dx: vx ? Math.sign(vx) : 0, dy: vy ? Math.sign(vy) : 0 };
-  }
-  
-  // Configura i controlli tattili: imposta la "direzione desiderata" sui pulsanti
+  // Gestione dei controlli tattili: aggiorna solo la "direzione desiderata"
   setupTouchControls() {
     const btnUp = document.getElementById('btn-up');
     const btnDown = document.getElementById('btn-down');
@@ -217,7 +225,8 @@ class GameScene extends Phaser.Scene {
       this.desiredDir = { dx, dy };
     };
     
-    [ [btnUp, 0, -1],
+    [
+      [btnUp, 0, -1],
       [btnDown, 0, 1],
       [btnLeft, -1, 0],
       [btnRight, 1, 0]
@@ -227,17 +236,16 @@ class GameScene extends Phaser.Scene {
         ev.preventDefault();
         setDirection(dx, dy);
       });
-      // Non azzeriamo la velocità al rilascio per mantenere il movimento continuo
-      btn.addEventListener('mouseup', () => {}); 
     });
   }
-  
+
   // Quando Pac‑Man raccoglie un pellet
   collectPellet(pacman, pellet) {
     pellet.destroy();
     this.score += 10;
     this.updateScorePanel();
     if (this.pellets.countActive() === 0) {
+      // Tutti i pellet raccolti: passa di livello
       this.level++;
       this.updateScorePanel();
       this.scene.restart();
@@ -252,6 +260,7 @@ class GameScene extends Phaser.Scene {
     this.updateScorePanel();
     this.resetPositions();
     if (this.lives <= 0) {
+      // Game Over
       this.score = 0;
       this.lives = 3;
       this.level = 1;
@@ -262,7 +271,7 @@ class GameScene extends Phaser.Scene {
     }
   }
   
-  // Riposiziona Pac‑Man e i fantasmi alle posizioni iniziali
+  // Riposiziona Pac‑Man e fantasmi
   resetPositions() {
     this.pacman.setPosition(TILE_SIZE * 1 + TILE_SIZE / 2, TILE_SIZE * 1 + TILE_SIZE / 2);
     this.pacman.setVelocity(0, 0);
@@ -279,31 +288,39 @@ class GameScene extends Phaser.Scene {
     });
   }
   
-  // Aggiorna il pannello punteggio (esterno al canvas)
+  // Aggiorna il pannello punteggio
   updateScorePanel() {
     document.getElementById('scoreLabel').textContent = `Score: ${this.score}`;
     document.getElementById('livesLabel').textContent = `Lives: ${this.lives}`;
     document.getElementById('levelLabel').textContent = `Level: ${this.level}`;
   }
-  
-  // Movimento dei fantasmi: se il fantasma è vicino al centro della cella (soglia 2px) cambia direzione immediatamente
+
+  // Movimento e cambio direzione del fantasma
   updateGhost(ghost) {
     const tileX = Math.floor(ghost.x / TILE_SIZE);
     const tileY = Math.floor(ghost.y / TILE_SIZE);
     const centerX = tileX * TILE_SIZE + TILE_SIZE / 2;
     const centerY = tileY * TILE_SIZE + TILE_SIZE / 2;
     const dist = Phaser.Math.Distance.Between(ghost.x, ghost.y, centerX, centerY);
+    
+    // Se è vicino al centro della cella, sceglie se cambiare direzione
     if (dist < 2) {
       let dirs = this.getAvailableDirections(tileX, tileY);
-      const currentDir = { dx: Math.sign(ghost.body.velocity.x), dy: Math.sign(ghost.body.velocity.y) };
+      const currentDir = {
+        dx: Math.sign(ghost.body.velocity.x),
+        dy: Math.sign(ghost.body.velocity.y)
+      };
+      // Evita di tornare indietro subito se ci sono altre scelte
       dirs = dirs.filter(d => !(d.dx === -currentDir.dx && d.dy === -currentDir.dy));
-      if (dirs.length === 0) dirs = this.getAvailableDirections(tileX, tileY);
+      if (dirs.length === 0) {
+        dirs = this.getAvailableDirections(tileX, tileY);
+      }
       const chosen = Phaser.Utils.Array.GetRandom(dirs);
       ghost.setVelocity(chosen.dx * ghost.speed, chosen.dy * ghost.speed);
     }
   }
   
-  // Restituisce le direzioni disponibili (libere dai muri) intorno alla cella (tileX, tileY)
+  // Restituisce le direzioni disponibili (non muri) attorno a (tileX, tileY)
   getAvailableDirections(tileX, tileY) {
     const dirs = [];
     if (this.isFree(tileX - 1, tileY)) dirs.push({ dx: -1, dy: 0 });
@@ -313,17 +330,21 @@ class GameScene extends Phaser.Scene {
     return dirs;
   }
   
-  // Verifica se la cella (tileX, tileY) non è un muro (0)
+  // Verifica se (tileX, tileY) è libero (non muro)
   isFree(tileX, tileY) {
-    if (tileX < 0 || tileX >= this.mazeData[0].length || tileY < 0 || tileY >= this.mazeData.length)
+    if (
+      tileX < 0 ||
+      tileX >= this.mazeData[0].length ||
+      tileY < 0 ||
+      tileY >= this.mazeData.length
+    ) {
       return false;
+    }
     return this.mazeData[tileY][tileX] !== 0;
   }
 }
 
-//
-// CONFIGURAZIONE DI PHASER: includiamo StartScene e GameScene
-//
+// Configurazione Phaser
 const config = {
   type: Phaser.AUTO,
   parent: 'phaser-game',
