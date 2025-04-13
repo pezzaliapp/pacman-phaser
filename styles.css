@@ -76,8 +76,7 @@ body {
   opacity: 0.8;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease;
-  /* Disabilita la selezione del testo per evitare effetti indesiderati */
-  -webkit-user-select: none;
+  -webkit-user-select: none; /* Disabilita la selezione del testo */
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
