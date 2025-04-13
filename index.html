@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pac-Man con Phaser - Livello Avanzato</title>
+  <title>Pac-Man con Phaser - Controlli Mobile</title>
   <style>
     /* Stili di base */
     body {
@@ -11,23 +11,38 @@
       background-color: #000;
       font-family: Arial, sans-serif;
     }
-    /* Contenitore per il gioco – si adatta in modo responsive */
+    /* Pannello punteggio esterno */
+    #scorePanel {
+      width: 90vw;
+      max-width: 800px;
+      margin: 10px auto;
+      color: #fff;
+      display: flex;
+      justify-content: space-around;
+    }
+    #scorePanel p {
+      margin: 0 10px;
+      font-size: 14px;
+    }
+    /* Contenitore per il gioco */
     #gameContainer {
       width: 90vw;
       max-width: 800px;
-      margin: 20px auto;
+      margin: 0 auto;
       background-color: #000;
       position: relative;
     }
-    /* Il div in cui Phaser monterà il canvas */
+    /* Il div in cui Phaser monta il canvas */
     #phaser-game {
       width: 100%;
       height: auto;
     }
-    /* Contenitore per i controlli touch, posizionati sotto il gioco */
+    /* Contenitore per i controlli touch */
     #controlsContainer {
       text-align: center;
-      margin-top: 10px;
+      margin: 10px auto;
+      width: 90vw;
+      max-width: 800px;
     }
     .touch-btn {
       width: 50px;
@@ -38,6 +53,11 @@
       border: none;
       border-radius: 5px;
       opacity: 0.7;
+      /* Evitiamo che il testo venga selezionato accidentalmente */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
     .btn-row {
       display: flex;
@@ -47,10 +67,19 @@
   </style>
 </head>
 <body>
+  <!-- Pannello punteggio -->
+  <div id="scorePanel">
+    <p id="scoreLabel">Score: 0</p>
+    <p id="livesLabel">Lives: 3</p>
+    <p id="levelLabel">Level: 1</p>
+  </div>
+
+  <!-- Contenitore per il gioco -->
   <div id="gameContainer">
     <div id="phaser-game"></div>
   </div>
 
+  <!-- Contenitore per i controlli tattili -->
   <div id="controlsContainer">
     <div class="btn-row" style="margin-bottom:5px;">
       <button id="btn-up" class="touch-btn">▲</button>
@@ -64,7 +93,7 @@
 
   <!-- Includi Phaser 3 da CDN -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  <!-- Il file principale di gioco -->
+  <!-- Il file JavaScript principale -->
   <script src="main.js"></script>
 </body>
 </html>
