@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pac‑Man con Phaser - PWA</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pac-Man Phaser</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Pannello punteggio esterno -->
+  <!-- Pannello punteggio -->
   <div id="scorePanel">
     <p id="scoreLabel">Score: 0</p>
     <p id="livesLabel">Lives: 3</p>
     <p id="levelLabel">Level: 1</p>
   </div>
 
-  <!-- Contenitore per il gioco -->
+  <!-- Contenitore di gioco -->
   <div id="gameContainer">
     <div id="phaser-game"></div>
   </div>
 
-  <!-- Controlli tattili (per smartphone) -->
+  <!-- Controlli tattili -->
   <div id="controlsContainer">
     <div class="btn-row" style="margin-bottom:5px;">
       <button id="btn-up" class="touch-btn">▲</button>
@@ -34,17 +33,8 @@
 
   <!-- Phaser 3 da CDN -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  
-  <!-- Codice del gioco -->
-  <script src="main.js"></script>
 
-  <!-- Service Worker: per abilitare la PWA -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(() => console.log('Service Worker registrato con successo!'))
-        .catch(err => console.log('Service Worker registration failed:', err));
-    }
-  </script>
+  <!-- File principale di gioco -->
+  <script src="main.js"></script>
 </body>
 </html>
