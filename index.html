@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pac-Man con Phaser - Labirinto Proporzionato</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pac-Man con Phaser - Livello Avanzato</title>
   <style>
-    /* Stile di base per lo sfondo */
+    /* Stili di base */
     body {
       margin: 0;
       background-color: #000;
+      font-family: Arial, sans-serif;
     }
-    /* Contenitore responsivo: si adatta alla larghezza schermo, max 800 px */
+    /* Contenitore per il gioco – si adatta in modo responsive */
     #gameContainer {
       width: 90vw;
       max-width: 800px;
-      margin: 20px auto; /* Centro orizzontalmente */
+      margin: 20px auto;
       background-color: #000;
       position: relative;
     }
-    /* Phaser monterà il canvas dentro #phaser-game */
+    /* Il div in cui Phaser monterà il canvas */
     #phaser-game {
       width: 100%;
       height: auto;
     }
-    /* Contenitore per i pulsanti tattili (su mobile), sotto il gioco */
+    /* Contenitore per i controlli touch, posizionati sotto il gioco */
     #controlsContainer {
       text-align: center;
       margin-top: 10px;
@@ -46,12 +47,10 @@
   </style>
 </head>
 <body>
-  <!-- Contenitore del gioco (canvas Phaser + HUD) -->
   <div id="gameContainer">
     <div id="phaser-game"></div>
   </div>
 
-  <!-- Pulsanti tattili (per chi gioca su smartphone) -->
   <div id="controlsContainer">
     <div class="btn-row" style="margin-bottom:5px;">
       <button id="btn-up" class="touch-btn">▲</button>
@@ -63,9 +62,9 @@
     </div>
   </div>
 
-  <!-- Inclusione di Phaser 3 -->
+  <!-- Includi Phaser 3 da CDN -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  <!-- File principale di gioco -->
+  <!-- Il file principale di gioco -->
   <script src="main.js"></script>
 </body>
 </html>
