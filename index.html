@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pac-Man con Phaser</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    /* È possibile aggiungere stili per centrare il canvas e posizionare controlli touch */
+    body { margin: 0; background-color: #000; }
+    #gameContainer { position: relative; margin: auto; width: 288px; height: 224px; }
+    /* Esempio basilare di bottoni on-screen (estendibili per mobile) */
+    .touch-btn {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      opacity: 0.6;
+      font-size: 24px;
+      background-color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    #btn-up    { bottom: 90px; left: 120px; }
+    #btn-down  { bottom: 20px; left: 120px; }
+    #btn-left  { bottom: 55px; left: 60px; }
+    #btn-right { bottom: 55px; left: 180px; }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <div id="phaser-game"></div>
+    <!-- Controlli touch per dispositivi mobili (eventi gestiti in main.js) -->
+    <button id="btn-up" class="touch-btn">▲</button>
+    <button id="btn-down" class="touch-btn">▼</button>
+    <button id="btn-left" class="touch-btn">◄</button>
+    <button id="btn-right" class="touch-btn">►</button>
+  </div>
+
+  <!-- Includiamo Phaser da CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script src="main.js"></script>
+  
+  <!-- Registrazione del service worker (se stai creando una PWA) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service worker registrato:', reg))
+        .catch(err => console.error('Service worker non registrato:', err));
+    }
+  </script>
+</body>
+</html>
