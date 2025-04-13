@@ -6,78 +6,89 @@ class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    // Creazione di una texture per Pac-Man: un cerchio giallo con "mordente"
-    let pacmanGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    pacmanGraphics.fillStyle(0xFFFF00, 1);
-    pacmanGraphics.slice(16, 16, 16, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(330), false);
-    pacmanGraphics.fillPath();
-    pacmanGraphics.generateTexture('pacman', 32, 32);
-    pacmanGraphics.destroy();
+    // Creiamo una texture per Pac-Man (arc giallo)
+    let pacmanGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    pacmanGfx.fillStyle(0xFFFF00, 1);
+    // Disegno di un arco con “bocca aperta”
+    pacmanGfx.slice(8, 8, 8, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(330), false);
+    pacmanGfx.fillPath();
+    pacmanGfx.generateTexture('pacman', 16, 16);
+    pacmanGfx.destroy();
 
-    // Creazione di una texture per il fantasma: un cerchio rosso
-    let ghostGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    ghostGraphics.fillStyle(0xFF0000, 1);
-    ghostGraphics.fillCircle(16, 16, 16);
-    ghostGraphics.generateTexture('ghost', 32, 32);
-    ghostGraphics.destroy();
+    // Texture per il fantasma (un semplice cerchio rosso)
+    let ghostGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    ghostGfx.fillStyle(0xFF0000, 1);
+    ghostGfx.fillCircle(8, 8, 8);
+    ghostGfx.generateTexture('ghost', 16, 16);
+    ghostGfx.destroy();
   }
 
   create() {
-    // Costanti per le dimensioni delle tile
-    this.tileSize = 32;
-    // Definizione del labirinto: matrice 7x9 (0 = parete, 1 = pellet, 2 = vuoto)
+    // Impostazioni di base
+    this.tileSize = 16;
+    // Labirinto più grande e un po’ più articolato (21×17)
+    // 0 = Parete, 1 = Pellet, 2 = Vuoto
     this.mazeData = [
-      [0,0,0,0,0,0,0,0,0],
-      [0,1,1,1,1,1,1,1,0],
-      [0,1,0,0,1,0,0,1,0],
-      [0,1,1,1,1,1,1,1,0],
-      [0,1,0,1,0,1,0,1,0],
-      [0,1,1,1,1,1,1,1,0],
-      [0,0,0,0,0,0,0,0,0]
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+      [0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0],
+      [0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0],
+      [0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0],
+      [0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0],
+      [0,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,0],
+      [0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,1,0],
+      [0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,0],
+      [0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0],
+      [0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1,0],
+      [0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0],
+      [0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0],
+      [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
     // Disegno del labirinto
     this.mazeGraphics = this.add.graphics();
     this.drawMaze();
 
-    // Creazione di Pac-Man, posizionato nella cella [1,1]
+    // Creiamo Pac-Man (posizioniamolo in una cella “vuota” a piacere, ad es. [1,1])
     this.pacman = this.physics.add.sprite(
       this.tileSize * 1 + this.tileSize / 2,
       this.tileSize * 1 + this.tileSize / 2,
       'pacman'
     );
-    this.pacman.speed = 100;
+    this.pacman.speed = 80;  // velocità pixel/secondo
 
-    // Creazione del fantasma, posizionato nella cella [7,1]
+    // Creiamo un fantasma che si muove a velocità ridotta
     this.ghost = this.physics.add.sprite(
-      this.tileSize * 7 + this.tileSize / 2,
-      this.tileSize * 1 + this.tileSize / 2,
+      this.tileSize * 10 + this.tileSize / 2,
+      this.tileSize * 8 + this.tileSize / 2,
       'ghost'
     );
-    this.ghost.speed = 50;
-    // Definiamo un semplice percorso per il fantasma (circuito)
+    this.ghost.speed = 60;
+
+    // Definiamo un percorso semplice per il fantasma (qui due punti a caso, poi puoi espandere)
     this.ghostPath = [
-      { col: 7, row: 1 },
-      { col: 7, row: 5 },
-      { col: 1, row: 5 },
-      { col: 1, row: 1 }
+      { col: 10, row: 8 },
+      { col: 10, row: 12 }
     ];
     this.ghostTargetIndex = 1;
 
-    // Impostazione dei controlli da tastiera
+    // Configuriamo i cursori per la tastiera
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    // Dati di gioco: punteggio, vite e livello
+    // Variabili di gioco
     this.score = 0;
     this.lives = 3;
     this.level = 1;
 
-    // Aggiunta dell'HUD
-    this.scoreText = this.add.text(10, 10, "Score: " + this.score, { font: "16px Arial", fill: "#ffffff" });
-    this.livesText = this.add.text(10, 30, "Lives: " + this.lives, { font: "16px Arial", fill: "#ffffff" });
-    this.levelText = this.add.text(10, 50, "Level: " + this.level, { font: "16px Arial", fill: "#ffffff" });
+    // HUD base per Score, Lives, Level
+    this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, { font: "14px Arial", fill: "#ffffff" });
+    this.livesText = this.add.text(10, 26, `Lives: ${this.lives}`, { font: "14px Arial", fill: "#ffffff" });
+    this.levelText = this.add.text(10, 42, `Level: ${this.level}`, { font: "14px Arial", fill: "#ffffff" });
 
-    // Impostazione dei controlli touch associati ai bottoni presenti nel DOM
+    // Controlli tattili (bottoni HTML)
     document.getElementById('btn-up').addEventListener('click', () => {
       this.pacman.setVelocity(0, -this.pacman.speed);
     });
@@ -92,83 +103,91 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // Funzione per disegnare il labirinto (pareti e pellet)
   drawMaze() {
     this.mazeGraphics.clear();
     for (let row = 0; row < this.mazeData.length; row++) {
       for (let col = 0; col < this.mazeData[row].length; col++) {
-        let value = this.mazeData[row][col];
+        let cellValue = this.mazeData[row][col];
         let x = col * this.tileSize;
         let y = row * this.tileSize;
-        if (value === 0) {
-          // Disegno della parete (rettangolo blu)
-          this.mazeGraphics.fillStyle(0x0000FF, 1);
+
+        if (cellValue === 0) {
+          // Parete (rettangolo blu)
+          this.mazeGraphics.fillStyle(0x0000ff, 1);
           this.mazeGraphics.fillRect(x, y, this.tileSize, this.tileSize);
         } else {
-          // Sfondo nero e, se presente, disegno del pellet
+          // Sfondo nero
           this.mazeGraphics.fillStyle(0x000000, 1);
           this.mazeGraphics.fillRect(x, y, this.tileSize, this.tileSize);
-          if (value === 1) {
-            this.mazeGraphics.fillStyle(0xFFFFFF, 1);
-            this.mazeGraphics.fillCircle(x + this.tileSize/2, y + this.tileSize/2, this.tileSize/10);
+
+          if (cellValue === 1) {
+            // Pellet
+            this.mazeGraphics.fillStyle(0xffffff, 1);
+            this.mazeGraphics.fillCircle(x + this.tileSize / 2, y + this.tileSize / 2, this.tileSize / 6);
           }
         }
       }
     }
   }
 
-  update(time, delta) {
-    // Controlli da tastiera per Pac-Man
-    let velocityX = 0, velocityY = 0;
+  update() {
+    // Controlli da tastiera per Pac-Man (priorità rispetto ai pulsanti tattili)
+    let vx = 0, vy = 0;
     if (this.cursors.left.isDown) {
-      velocityX = -this.pacman.speed;
+      vx = -this.pacman.speed;
     } else if (this.cursors.right.isDown) {
-      velocityX = this.pacman.speed;
+      vx = this.pacman.speed;
     }
     if (this.cursors.up.isDown) {
-      velocityY = -this.pacman.speed;
+      vy = -this.pacman.speed;
     } else if (this.cursors.down.isDown) {
-      velocityY = this.pacman.speed;
+      vy = this.pacman.speed;
     }
-    if (velocityX !== 0 || velocityY !== 0) {
-      this.pacman.setVelocity(velocityX, velocityY);
+    if (vx !== 0 || vy !== 0) {
+      this.pacman.setVelocity(vx, vy);
     }
 
-    // Gestione della raccolta del pellet
+    // Gestione raccolta pellet
     let tileX = Math.floor(this.pacman.x / this.tileSize);
     let tileY = Math.floor(this.pacman.y / this.tileSize);
+    if (this.mazeData[tileY] && this.mazeData[tileY][tileX] === 1) {
+      this.mazeData[tileY][tileX] = 2; // Diventa vuoto
+      this.score += 10;
+      this.scoreText.setText(`Score: ${this.score}`);
+      this.drawMaze();
+    }
+    // Se Pac-Man entra in una parete, blocchiamo il movimento
     if (this.mazeData[tileY] && this.mazeData[tileY][tileX] === 0) {
       this.pacman.setVelocity(0, 0);
     }
-    if (this.mazeData[tileY] && this.mazeData[tileY][tileX] === 1) {
-      this.mazeData[tileY][tileX] = 2;
-      this.score += 10;
-      this.scoreText.setText("Score: " + this.score);
-      this.drawMaze();
-    }
 
-    // Movimento del fantasma lungo il percorso predefinito
+    // Movimento del fantasma sul percorso
     let target = this.ghostPath[this.ghostTargetIndex];
     let targetX = target.col * this.tileSize + this.tileSize / 2;
     let targetY = target.row * this.tileSize + this.tileSize / 2;
-    let ghostVector = new Phaser.Math.Vector2(targetX - this.ghost.x, targetY - this.ghost.y);
-    if (ghostVector.length() < 5) {
+    let dx = targetX - this.ghost.x;
+    let dy = targetY - this.ghost.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 4) {
+      // Passa al prossimo punto
       this.ghostTargetIndex = (this.ghostTargetIndex + 1) % this.ghostPath.length;
     } else {
-      ghostVector = ghostVector.normalize().scale(this.ghost.speed);
-      this.ghost.setVelocity(ghostVector.x, ghostVector.y);
+      // Muove linearmente verso la destinazione
+      let angle = Math.atan2(dy, dx);
+      this.ghost.setVelocity(Math.cos(angle) * this.ghost.speed, Math.sin(angle) * this.ghost.speed);
     }
 
-    // Verifica della collisione tra Pac-Man e il fantasma
-    let distance = Phaser.Math.Distance.Between(this.pacman.x, this.pacman.y, this.ghost.x, this.ghost.y);
-    if (distance < this.pacman.width/2 + this.ghost.width/2) {
+    // Collisione fantasma-Pac-Man
+    let ghostDist = Phaser.Math.Distance.Between(this.pacman.x, this.pacman.y, this.ghost.x, this.ghost.y);
+    if (ghostDist < 14) {
+      // Pac-Man perde una vita
       this.lives -= 1;
-      this.livesText.setText("Lives: " + this.lives);
-      // Resetta le posizioni di Pac-Man e del fantasma
-      this.pacman.setPosition(this.tileSize * 1 + this.tileSize/2, this.tileSize * 1 + this.tileSize/2);
-      this.ghost.setPosition(this.tileSize * 7 + this.tileSize/2, this.tileSize * 1 + this.tileSize/2);
+      this.livesText.setText(`Lives: ${this.lives}`);
+      // Reset posizioni
+      this.resetPositions();
+
       if (this.lives <= 0) {
-        // Per semplicità, si riavvia la scena in caso di Game Over
+        // Game over: per semplicità, restart scena
         this.scene.restart();
         this.score = 0;
         this.lives = 3;
@@ -176,18 +195,28 @@ class GameScene extends Phaser.Scene {
       }
     }
   }
+
+  resetPositions() {
+    // Riporta Pac-Man
+    this.pacman.setPosition(this.tileSize * 1 + this.tileSize / 2, this.tileSize * 1 + this.tileSize / 2);
+    this.pacman.setVelocity(0, 0);
+    // Riporta il fantasma
+    this.ghost.setPosition(this.tileSize * 10 + this.tileSize / 2, this.tileSize * 8 + this.tileSize / 2);
+    this.ghostTargetIndex = 1;
+  }
 }
 
+// Config Phaser con Scale Mode FIT
 const config = {
   type: Phaser.AUTO,
   parent: 'phaser-game',
-  width: 288,
-  height: 224,
+  width: 336,    // Larghezza base (21 tile * 16px)
+  height: 272,   // Altezza base (17 tile * 16px)
   backgroundColor: "#000000",
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    parent: "gameContainer"  // Il gioco scalerà in base allo spazio di #gameContainer
+    parent: "gameContainer"
   },
   physics: {
     default: 'arcade',
