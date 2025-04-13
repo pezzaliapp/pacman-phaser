@@ -1,24 +1,23 @@
 const TILE_SIZE = 16;
 
 //
-// SCENA DI START: mostra il titolo e un pulsante "START" per avviare il gioco
+// SCENA DI START: mostra il titolo e un pulsante “START” per avviare il gioco
 //
 class StartScene extends Phaser.Scene {
   constructor() {
     super({ key: 'StartScene' });
   }
-  
+
   create() {
-    // Imposta dimensioni e centro della scena
-    let centerX = this.cameras.main.width / 2;
-    let centerY = this.cameras.main.height / 2;
+    const centerX = this.cameras.main.width / 2;
+    const centerY = this.cameras.main.height / 2;
     
-    // Titolo
+    // Mostra il titolo
     this.add.text(centerX, centerY - 60, 'PAC‑MAN', { fontSize: '48px', fill: '#fff' })
       .setOrigin(0.5);
     
-    // Pulsante START interattivo
-    let startButton = this.add.text(centerX, centerY + 20, 'START', { fontSize: '32px', fill: '#0f0' })
+    // Crea il pulsante START
+    const startButton = this.add.text(centerX, centerY + 20, 'START', { fontSize: '32px', fill: '#0f0' })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
       
@@ -29,7 +28,7 @@ class StartScene extends Phaser.Scene {
 }
 
 //
-// SCENA DI GIOCO: qui avviene tutto il movimento, la gestione del labirinto, dei pellet e dei fantasmi
+// SCENA DI GIOCO: logica principale (labirinto, Pac‑Man, fantasmi, controlli e punteggio)
 //
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -37,30 +36,30 @@ class GameScene extends Phaser.Scene {
   }
   
   preload() {
-    // Textura per la parete (muro) – un quadrato blu
-    let wallGfx = this.make.graphics({ add: false });
+    // Texture per il muro (rettangolo blu)
+    const wallGfx = this.make.graphics({ add: false });
     wallGfx.fillStyle(0x0000ff, 1);
     wallGfx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
     wallGfx.generateTexture('wall', TILE_SIZE, TILE_SIZE);
     wallGfx.destroy();
-    
-    // Textura per Pac‑Man: un arco giallo (16x16)
-    let pacmanGfx = this.make.graphics({ add: false });
+
+    // Texture per Pac‑Man: disegnato come un arco giallo
+    const pacmanGfx = this.make.graphics({ add: false });
     pacmanGfx.fillStyle(0xffff00, 1);
     pacmanGfx.slice(TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/2, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(330), false);
     pacmanGfx.fillPath();
     pacmanGfx.generateTexture('pacman', TILE_SIZE, TILE_SIZE);
     pacmanGfx.destroy();
-    
-    // Textura per il fantasma: un cerchio rosso (16x16)
-    let ghostGfx = this.make.graphics({ add: false });
+
+    // Texture per il fantasma: cerchio rosso
+    const ghostGfx = this.make.graphics({ add: false });
     ghostGfx.fillStyle(0xff0000, 1);
     ghostGfx.fillCircle(TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/2);
     ghostGfx.generateTexture('ghost', TILE_SIZE, TILE_SIZE);
     ghostGfx.destroy();
-    
-    // Textura per il pellet: un piccolo cerchio bianco (8x8)
-    let pelletGfx = this.make.graphics({ add: false });
+
+    // Texture per il pellet: piccolo cerchio bianco (8x8)
+    const pelletGfx = this.make.graphics({ add: false });
     pelletGfx.fillStyle(0xffffff, 1);
     pelletGfx.fillCircle(4, 4, 4);
     pelletGfx.generateTexture('pellet', 8, 8);
@@ -68,8 +67,8 @@ class GameScene extends Phaser.Scene {
   }
   
   create() {
-    // Definiamo la mappa del labirinto (21×17 tile)
-    // 0 = muro, 1 = pellet, 2 = spazio vuoto (per eventuali corridoi)
+    // Definizione del labirinto (matrice 21x17)
+    // 0 = muro, 1 = pellet, 2 = spazio vuoto
     this.mazeData = [
       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
@@ -90,14 +89,14 @@ class GameScene extends Phaser.Scene {
       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
     
-    // Creiamo gruppi statici per muri e pellet (usiamo la fisica Arcade)
+    // Creazione dei gruppi statici per i muri e i pellet
     this.walls = this.physics.add.staticGroup();
     this.pellets = this.physics.add.staticGroup();
     
     for (let row = 0; row < this.mazeData.length; row++) {
       for (let col = 0; col < this.mazeData[row].length; col++) {
-        let x = col * TILE_SIZE + TILE_SIZE / 2;
-        let y = row * TILE_SIZE + TILE_SIZE / 2;
+        const x = col * TILE_SIZE + TILE_SIZE / 2;
+        const y = row * TILE_SIZE + TILE_SIZE / 2;
         if (this.mazeData[row][col] === 0) {
           this.walls.create(x, y, 'wall');
         } else if (this.mazeData[row][col] === 1) {
@@ -106,7 +105,7 @@ class GameScene extends Phaser.Scene {
       }
     }
     
-    // Crea Pac‑Man in una posizione libera (cella [1,1])
+    // Creazione di Pac‑Man (posizione iniziale in [1,1])
     this.pacman = this.physics.add.sprite(
       TILE_SIZE * 1 + TILE_SIZE / 2,
       TILE_SIZE * 1 + TILE_SIZE / 2,
@@ -115,7 +114,7 @@ class GameScene extends Phaser.Scene {
     this.pacman.speed = 80;
     this.pacman.setCollideWorldBounds(true);
     
-    // Crea un gruppo di fantasmi con più entità
+    // Creazione di un gruppo di fantasmi
     this.ghosts = this.physics.add.group();
     const ghostPositions = [
       { x: TILE_SIZE * 10 + TILE_SIZE / 2, y: TILE_SIZE * 8 + TILE_SIZE / 2 },
@@ -129,13 +128,12 @@ class GameScene extends Phaser.Scene {
       this.ghosts.add(ghost);
     });
     
-    // Gestione collisioni: Pac‑Man e fantasmi contro i muri
+    // Collisioni: Pac‑Man e fantasmi con i muri
     this.physics.add.collider(this.pacman, this.walls);
     this.physics.add.collider(this.ghosts, this.walls);
     
-    // Overlap per la raccolta dei pellet
+    // Overlap per la raccolta dei pellet e per la collisione con i fantasmi
     this.physics.add.overlap(this.pacman, this.pellets, this.collectPellet, null, this);
-    // Overlap per la collisione tra Pac‑Man e i fantasmi
     this.physics.add.overlap(this.pacman, this.ghosts, this.hitGhost, null, this);
     
     // Imposta i controlli da tastiera
@@ -147,12 +145,12 @@ class GameScene extends Phaser.Scene {
     this.level = 1;
     this.updateScorePanel();
     
-    // Imposta i controlli tattili (click/touch)
+    // Imposta i controlli tattili (senza azzerare la velocità al rilascio per mantenere il movimento)
     this.setupTouchControls();
   }
   
   update() {
-    // Controllo della tastiera: imposta velocità di Pac‑Man
+    // Gestione dei controlli da tastiera per Pac‑Man
     let vx = 0, vy = 0;
     if (this.cursors.left.isDown) {
       vx = -this.pacman.speed;
@@ -168,7 +166,7 @@ class GameScene extends Phaser.Scene {
       this.setPacmanVelocity(vx, vy);
     }
     
-    // Aggiorna il movimento di ogni fantasma
+    // Aggiorna il movimento di ciascun fantasma
     this.ghosts.getChildren().forEach(ghost => {
       this.updateGhost(ghost);
     });
@@ -188,7 +186,7 @@ class GameScene extends Phaser.Scene {
     }
   }
   
-  // Configura i controlli tattili: assegna eventi click/touchstart e touchend
+  // Configura i controlli tattili: utilizza "touchstart" per impostare la direzione
   setupTouchControls() {
     const btnUp = document.getElementById('btn-up');
     const btnDown = document.getElementById('btn-down');
@@ -199,21 +197,18 @@ class GameScene extends Phaser.Scene {
       this.setPacmanVelocity(vx, vy);
     };
     
-    // Imposta gli eventi per ciascun pulsante
+    // Assegna gli eventi per click e touchstart (non fermare il movimento su touchend)
     [ [btnUp, 0, -this.pacman.speed],
       [btnDown, 0, this.pacman.speed],
       [btnLeft, -this.pacman.speed, 0],
       [btnRight, this.pacman.speed, 0]
     ].forEach(([btn, vx, vy]) => {
       btn.addEventListener('click', () => setDirection(vx, vy));
-      btn.addEventListener('touchstart', (ev) => {
+      btn.addEventListener('touchstart', ev => {
         ev.preventDefault();
         setDirection(vx, vy);
       });
-      btn.addEventListener('touchend', (ev) => {
-        ev.preventDefault();
-        this.setPacmanVelocity(0, 0);
-      });
+      // Non azzeriamo la velocità su touchend per mantenere un movimento continuo
       btn.addEventListener('mouseup', () => this.setPacmanVelocity(0, 0));
     });
   }
@@ -223,10 +218,10 @@ class GameScene extends Phaser.Scene {
     pellet.destroy();
     this.score += 10;
     this.updateScorePanel();
+    // Se non ci sono più pellet, aumenta il livello e riavvia la scena
     if (this.pellets.countActive() === 0) {
       this.level++;
       this.updateScorePanel();
-      // Per semplicità, riavvia la scena (qui puoi implementare logiche di aumento difficoltà)
       this.scene.restart();
       this.registry.destroy();
       this.events.off();
@@ -249,7 +244,7 @@ class GameScene extends Phaser.Scene {
     }
   }
   
-  // Riposiziona Pac‑Man e i fantasmi
+  // Riposiziona Pac‑Man e i fantasmi alle posizioni iniziali
   resetPositions() {
     this.pacman.setPosition(TILE_SIZE * 1 + TILE_SIZE / 2, TILE_SIZE * 1 + TILE_SIZE / 2);
     this.pacman.setVelocity(0, 0);
@@ -266,33 +261,33 @@ class GameScene extends Phaser.Scene {
     });
   }
   
-  // Aggiorna il pannello punteggio (fuori dal canvas)
+  // Aggiorna il pannello punteggio esterno
   updateScorePanel() {
     document.getElementById('scoreLabel').textContent = `Score: ${this.score}`;
     document.getElementById('livesLabel').textContent = `Lives: ${this.lives}`;
     document.getElementById('levelLabel').textContent = `Level: ${this.level}`;
   }
   
-  // Logica di movimento dei fantasmi: quando arrivano al centro della cella (soglia aumentata a 5 pixel) scelgono una nuova direzione casuale
+  // Aggiorna il movimento del fantasma: quando è vicino al centro della cella (soglia 2px), cambia direzione senza fermarsi
   updateGhost(ghost) {
-    let tileX = Math.floor(ghost.x / TILE_SIZE);
-    let tileY = Math.floor(ghost.y / TILE_SIZE);
-    let centerX = tileX * TILE_SIZE + TILE_SIZE / 2;
-    let centerY = tileY * TILE_SIZE + TILE_SIZE / 2;
-    let dist = Phaser.Math.Distance.Between(ghost.x, ghost.y, centerX, centerY);
-    if (dist < 5) {
+    const tileX = Math.floor(ghost.x / TILE_SIZE);
+    const tileY = Math.floor(ghost.y / TILE_SIZE);
+    const centerX = tileX * TILE_SIZE + TILE_SIZE / 2;
+    const centerY = tileY * TILE_SIZE + TILE_SIZE / 2;
+    const dist = Phaser.Math.Distance.Between(ghost.x, ghost.y, centerX, centerY);
+    if (dist < 2) {
       let dirs = this.getAvailableDirections(tileX, tileY);
-      let currentDir = { dx: Math.sign(ghost.body.velocity.x), dy: Math.sign(ghost.body.velocity.y) };
+      const currentDir = { dx: Math.sign(ghost.body.velocity.x), dy: Math.sign(ghost.body.velocity.y) };
       dirs = dirs.filter(d => !(d.dx === -currentDir.dx && d.dy === -currentDir.dy));
       if (dirs.length === 0) dirs = this.getAvailableDirections(tileX, tileY);
-      let chosen = Phaser.Utils.Array.GetRandom(dirs);
+      const chosen = Phaser.Utils.Array.GetRandom(dirs);
       ghost.setVelocity(chosen.dx * ghost.speed, chosen.dy * ghost.speed);
     }
   }
   
-  // Restituisce le direzioni libere (non bloccate da un muro)
+  // Restituisce le direzioni libere (non bloccate) intorno a una cella data
   getAvailableDirections(tileX, tileY) {
-    let dirs = [];
+    const dirs = [];
     if (this.isFree(tileX - 1, tileY)) dirs.push({ dx: -1, dy: 0 });
     if (this.isFree(tileX + 1, tileY)) dirs.push({ dx: 1, dy: 0 });
     if (this.isFree(tileX, tileY - 1)) dirs.push({ dx: 0, dy: -1 });
@@ -300,15 +295,16 @@ class GameScene extends Phaser.Scene {
     return dirs;
   }
   
-  // Verifica se la cella (tileX, tileY) non è un muro (0)
+  // Restituisce true se la cella (tileX, tileY) non è un muro (0)
   isFree(tileX, tileY) {
-    if (tileX < 0 || tileX >= this.mazeData[0].length || tileY < 0 || tileY >= this.mazeData.length) return false;
+    if (tileX < 0 || tileX >= this.mazeData[0].length || tileY < 0 || tileY >= this.mazeData.length)
+      return false;
     return this.mazeData[tileY][tileX] !== 0;
   }
 }
 
 //
-// CONFIGURAZIONE DI PHASER: includiamo entrambe le scene
+// CONFIGURAZIONE DI PHASER: includiamo StartScene e GameScene
 //
 const config = {
   type: Phaser.AUTO,
